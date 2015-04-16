@@ -22,6 +22,18 @@ User build his own structure and CMS would take care of anything else...
  - Create you own or overwrite pages in `_content` directory
  - That's it!
  
+How it works: 
+ 
+> By accessing `www.yoursite.com/` - CMS would look for an `_content/_index.*`
+
+> By accessing `www.yoursite.com/whatever` - CMS would look for an `_content/whatever.*`
+
+> By accessing `www.yoursite.com/nested/whatever` - CMS would look for an `_content/nested/whatever.*`
+
+> On `404` error - CMS would look for an `_content/_404.*`
+
+> On `500` error - CMS would look for an `_content/_500.*`
+ 
 # Development
  - Clone from github
  - Run `composer install`
