@@ -8,8 +8,8 @@
 
 namespace MicronCMS\Templating;
 
-use MicronCMS\Templating\Exception\MissingTemplateException;
 use Michelf\MarkdownExtra as Markdown;
+use MicronCMS\Templating\Exception\MissingTemplateException;
 
 
 /**

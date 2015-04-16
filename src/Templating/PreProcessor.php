@@ -34,8 +34,8 @@ class PreProcessor extends AbstractCompilable
      */
     public function process(& $content, $sourceFile)
     {
-        foreach($this->parseMap as $token => $regexp) {
-            $content = preg_replace_callback($regexp, function($matches) use ($token, $sourceFile) {
+        foreach ($this->parseMap as $token => $regexp) {
+            $content = preg_replace_callback($regexp, function ($matches) use ($token, $sourceFile) {
                 $statement = $matches['statement'];
 
                 return $this->processStatement($token, $statement, $sourceFile);
@@ -51,7 +51,7 @@ class PreProcessor extends AbstractCompilable
      */
     protected function processStatement($token, $statement, $sourceFile)
     {
-        switch($token) {
+        switch ($token) {
             case self::T_INCLUDE:
                 $basePath = dirname($sourceFile);
                 $templateRelativePath = ltrim($statement, '/');

@@ -16,7 +16,7 @@ use MicronCMS\FileSystem\RecursiveWalker;
  * Class Installer
  * @package MicronCMS
  */
-class Installer 
+class Installer
 {
     /**
      * @var string
@@ -50,8 +50,13 @@ class Installer
      * @param string $defaultContentDirectory
      * @param string $bootstrapFile
      */
-    public function __construct($buildDirectory, $contentPath, $htaccessTemplate, $defaultContentDirectory, $bootstrapFile)
-    {
+    public function __construct(
+        $buildDirectory,
+        $contentPath,
+        $htaccessTemplate,
+        $defaultContentDirectory,
+        $bootstrapFile
+    ) {
         $this->buildDirectory = rtrim($buildDirectory, '/');
         $this->contentPath = ltrim($contentPath, '/');
         $this->htaccessTemplate = $htaccessTemplate;
@@ -95,11 +100,11 @@ class Installer
      */
     public function install(Compiler $compiler, $cleanupBuildDirectory = false)
     {
-        if($cleanupBuildDirectory) {
+        if ($cleanupBuildDirectory) {
             $walker = new RecursiveWalker($this->buildDirectory);
 
-            foreach($walker->getIterator() as $file) {
-                @unlink((string) $file);
+            foreach ($walker->getIterator() as $file) {
+                @unlink((string)$file);
             }
         }
 
@@ -112,7 +117,7 @@ class Installer
 
         $htaccessContent = file_get_contents($this->htaccessTemplate);
 
-        if(false === $htaccessContent) {
+        if (false === $htaccessContent) {
             throw new InstallationException("Unable to read htaccess template");
         }
 
@@ -128,7 +133,7 @@ class Installer
             $htaccessContent
         );
 
-        if(!file_put_contents(sprintf('%s/.htaccess', $this->buildDirectory), $htaccessContent, LOCK_EX)) {
+        if (!file_put_contents(sprintf('%s/.htaccess', $this->buildDirectory), $htaccessContent, LOCK_EX)) {
             throw new InstallationException("Unable to persist htaccess file");
         }
 
@@ -141,9 +146,9 @@ class Installer
 
             /** @var \SplFileObject $fileObject */
             foreach ($filesIterator as $fileObject) {
-                $relativePath = $this->getRelativePath((string) $fileObject, $this->defaultContentDirectory);
+                $relativePath = $this->getRelativePath((string)$fileObject, $this->defaultContentDirectory);
 
-                if (!copy((string) $fileObject, sprintf('%s/%s', $contentDirectory, $relativePath))) {
+                if (!copy((string)$fileObject, sprintf('%s/%s', $contentDirectory, $relativePath))) {
                     throw new InstallationException(sprintf(
                         "Unable to copy '%s' into content directory",
                         $relativePath

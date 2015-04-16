@@ -64,7 +64,7 @@ class Response extends AbstractCompilable
      */
     public function send()
     {
-        if(headers_sent()) {
+        if (headers_sent()) {
             throw new ApplicationException("Headers already sent");
         }
 

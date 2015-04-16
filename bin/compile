@@ -22,7 +22,7 @@ $buildDirectory = __DIR__ . '/../build/';
 
 echo "Checking build directory...\n";
 
-if(!is_dir($buildDirectory) && !mkdir($buildDirectory, 0755, true)) {
+if (!is_dir($buildDirectory) && !mkdir($buildDirectory, 0755, true)) {
     throw new \MicronCMS\Exception\CompilationFailedException("Unable to create build directory");
 }
 

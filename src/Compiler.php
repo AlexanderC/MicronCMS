@@ -16,7 +16,7 @@ use MicronCMS\FileSystem\RecursiveWalker;
  * Class Compiler
  * @package MicronCMS
  */
-class Compiler 
+class Compiler
 {
     /**
      * @var string
@@ -51,15 +51,15 @@ class Compiler
     {
         $this->path = realpath($path);
 
-        if(empty($this->path)) {
+        if (empty($this->path)) {
             throw new CompilationFailedException("No such compile path exists");
         }
 
-        $this->extensions = array_map(function($extension) {
+        $this->extensions = array_map(function ($extension) {
             return 0 === strpos($extension, '.') ? $extension : sprintf('.%s', $extension);
         }, explode('|', preg_replace('/\s+/ui', '', $extensions)));
 
-        if(empty($this->extensions)) {
+        if (empty($this->extensions)) {
             throw new CompilationFailedException("No extensions to be compiled");
         }
     }
@@ -144,22 +144,23 @@ class Compiler
         $compilationStack = [];
 
         /** @var \SplFileInfo $file */
-        foreach($this->files() as $file) {
-            require_once((string) $file);
+        foreach ($this->files() as $file) {
+            require_once((string)$file);
         }
 
         /** @var CompilableInterface $declaredClass */
-        foreach(get_declared_classes() as $declaredClass) {
-            if(is_subclass_of($declaredClass, CompilableInterface::class)
-                || is_subclass_of($declaredClass, \Exception::class)) {
+        foreach (get_declared_classes() as $declaredClass) {
+            if (is_subclass_of($declaredClass, CompilableInterface::class)
+                || is_subclass_of($declaredClass, \Exception::class)
+            ) {
                 $reflectionClass = new \ReflectionClass($declaredClass);
 
                 $this->compileRecursive($reflectionClass, $compiledPartsGrouped, $compilationStack);
             }
         }
 
-        foreach($compiledPartsGrouped as $namespace => $localCompiledParts) {
-            if(!empty($namespace)) {
+        foreach ($compiledPartsGrouped as $namespace => $localCompiledParts) {
+            if (!empty($namespace)) {
                 $compiledParts[] = sprintf(
                     "namespace %s\n{\n    %s\n}",
                     $namespace,
@@ -172,20 +173,20 @@ class Compiler
 
         $code = implode("\n", $compiledParts);
 
-        if(isset($this->prependFile)) {
+        if (isset($this->prependFile)) {
             $prependContent = file_get_contents($this->prependFile);
 
-            if(false === $prependContent) {
+            if (false === $prependContent) {
                 throw new CompilationFailedException("Unable to read prepend file");
             }
 
             $code = sprintf("namespace __auto_prepend\n{\n%s\n}\n%s", $this->removePhpTags($prependContent), $code);
         }
 
-        if(isset($this->appendFile)) {
+        if (isset($this->appendFile)) {
             $appendContent = file_get_contents($this->appendFile);
 
-            if(false === $appendContent) {
+            if (false === $appendContent) {
                 throw new CompilationFailedException("Unable to read append file");
             }
 
@@ -214,7 +215,7 @@ class Compiler
     {
         $tmpFile = tempnam(sys_get_temp_dir(), md5(static::class));
 
-        if(!file_put_contents($tmpFile, $code, LOCK_EX)) {
+        if (!file_put_contents($tmpFile, $code, LOCK_EX)) {
             throw new CompilationFailedException("Unable to persist temporary file for minification purposes");
         }
 
@@ -235,14 +236,14 @@ class Compiler
         array & $compiledPartsGrouped,
         array & $compilationStack
     ) {
-        if($reflectionClass->isInternal() || $reflectionClass->implementsInterface(NonCompilableInterface::class)) {
+        if ($reflectionClass->isInternal() || $reflectionClass->implementsInterface(NonCompilableInterface::class)) {
             return;
         }
 
         /** @var CompilableInterface $className */
         $className = $reflectionClass->getName();
 
-        if(!in_array($className, $compilationStack)) {
+        if (!in_array($className, $compilationStack)) {
             $compilationStack[] = $className;
 
             $isCompilable = $reflectionClass->isInstantiable()
@@ -250,13 +251,13 @@ class Compiler
 
             $namespace = '';
 
-            if($isCompilable) {
+            if ($isCompilable) {
                 $className::preCompile($reflectionClass);
             }
 
             $compiledClass = $this->compileClass($reflectionClass, $namespace);
 
-            if($isCompilable) {
+            if ($isCompilable) {
                 $className::postCompile($compiledClass);
             }
 
@@ -272,8 +273,9 @@ class Compiler
                 $this->compileRecursive($reflectionInterface, $compiledPartsGrouped, $compilationStack);
             }
 
-            if(is_subclass_of($className, CompilableInterface::class)
-                && !$reflectionClass->isInterface()) {
+            if (is_subclass_of($className, CompilableInterface::class)
+                && !$reflectionClass->isInterface()
+            ) {
 
                 foreach ($className::compileDependencies() as $dependencyClass) {
                     $this->compileRecursive(
@@ -284,7 +286,7 @@ class Compiler
                 }
             }
 
-            if(!isset($compiledPartsGrouped[$namespace])) {
+            if (!isset($compiledPartsGrouped[$namespace])) {
                 $compiledPartsGrouped[$namespace] = [];
             }
 
@@ -302,7 +304,7 @@ class Compiler
         $classCode = '';
         $className = $reflectionClass->getName();
         $classNamespace = $reflectionClass->getNamespaceName();
-        $namespace = $classNamespace ? : $namespace;
+        $namespace = $classNamespace ?: $namespace;
 
         $endLine = $reflectionClass->getEndLine();
         $startLine = $endLine;
@@ -345,7 +347,7 @@ class Compiler
 
         fclose($file);
 
-        foreach($uses as $alias => $realClass) {
+        foreach ($uses as $alias => $realClass) {
             $classCode = preg_replace(
                 sprintf('/(\s+|\()(%s)(\s*(?:\(|::|\s+|\)))/mui', preg_quote($alias)),
                 sprintf('$1\%s$3', $realClass),
@@ -376,7 +378,7 @@ class Compiler
      */
     protected function buildExtensionsRegexp()
     {
-        $escapedExtensions = array_map(function($extension) {
+        $escapedExtensions = array_map(function ($extension) {
             return preg_quote($extension, '/');
         }, $this->extensions);
 

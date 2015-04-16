@@ -74,18 +74,18 @@ abstract class AbstractTemplate extends AbstractCompilable
         $extension = $file->getExtension();
 
         if ($extension === self::NATIVE_EXTENSION) {
-            return new NativeTemplate((string) $file);
+            return new NativeTemplate((string)$file);
         }
 
         $templateClass = sprintf('%s\\%sTemplate', __NAMESPACE__, ucfirst($extension));
 
-        if(!class_exists($templateClass)) {
+        if (!class_exists($templateClass)) {
             throw new MissingTemplateException(sprintf(
                 "Missing template class for '%s'",
                 $extension
             ));
         }
 
-        return new $templateClass((string) $file);
+        return new $templateClass((string)$file);
     }
 }

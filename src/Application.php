@@ -125,7 +125,7 @@ class Application extends AbstractCompilable
      */
     public function dispatch(Request $request = null)
     {
-        $request = $request ? : Request::createFromGlobals();
+        $request = $request ?: Request::createFromGlobals();
         $path = $request->getPath();
 
         try {

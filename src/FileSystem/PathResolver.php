@@ -39,7 +39,7 @@ class PathResolver extends AbstractCompilable
     {
         $this->baseDirectory = realpath($baseDirectory);
 
-        if(empty($this->baseDirectory)) {
+        if (empty($this->baseDirectory)) {
             throw new MissingPathException("Missing base directory");
         }
     }
@@ -80,7 +80,7 @@ class PathResolver extends AbstractCompilable
         $nativeFile = sprintf('%s.%s', $baseFilePath, AbstractTemplate::NATIVE_EXTENSION);
 
         // always highest priority
-        if(is_file($nativeFile)) {
+        if (is_file($nativeFile)) {
             return new \SplFileInfo($nativeFile);
         }
 

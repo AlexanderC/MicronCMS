@@ -37,7 +37,7 @@ class RecursiveWalker extends AbstractCompilable implements \IteratorAggregate
     {
         $this->path = realpath($path);
 
-        if(empty($this->path)) {
+        if (empty($this->path)) {
             throw new Exception("Missing path to walk through");
         }
 
@@ -59,7 +59,7 @@ class RecursiveWalker extends AbstractCompilable implements \IteratorAggregate
         $rii->rewind();
 
         while ($rii->valid()) {
-            if (empty($this->filterRegexp) || preg_match($this->filterRegexp, (string) $rii->current())) {
+            if (empty($this->filterRegexp) || preg_match($this->filterRegexp, (string)$rii->current())) {
                 yield $rii->current();
             }
 
