@@ -62,6 +62,36 @@ class Installer
     /**
      * @param Compiler $compiler
      * @param bool $cleanupBuildDirectory
+     * @param string $archiveFile
+     */
+    public function installAndArchiveInto(Compiler $compiler, $cleanupBuildDirectory = false, $archiveFile)
+    {
+        $this->install($compiler, $cleanupBuildDirectory);
+
+        $rootPath = realpath($this->buildDirectory);
+
+        $zip = new \ZipArchive();
+        $zip->open($archiveFile, \ZipArchive::CREATE);
+
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($rootPath, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::LEAVES_ONLY
+        );
+
+        foreach ($files as $name => $file) {
+            $filePath = $file->getRealPath();
+
+            if (!$zip->addFile($filePath, $this->getRelativePath($filePath, $rootPath))) {
+                throw new InstallationException("Unable to archive build content");
+            }
+        }
+
+        $zip->close();
+    }
+
+    /**
+     * @param Compiler $compiler
+     * @param bool $cleanupBuildDirectory
      */
     public function install(Compiler $compiler, $cleanupBuildDirectory = false)
     {
@@ -134,6 +164,6 @@ class Installer
      */
     protected function getRelativePath($absolutePath, $pathPrefix)
     {
-        return preg_replace(sprintf('/^%s\/?([^\/]+)$/ui', preg_quote($pathPrefix, '/')), '$1', $absolutePath);
+        return preg_replace(sprintf('/^%s\/?([^\/]+.+)$/ui', preg_quote($pathPrefix, '/')), '$1', $absolutePath);
     }
 }
