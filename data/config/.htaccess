@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+    Options +FollowSymlinks
+    RewriteEngine On
+
+    RewriteRule ^${BOOTSTRAP_SCRIPT} - [L]
+    RewriteRule ^${CONTENT_PATH}/(.*)$ - [L]
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^(.*)$ /${BOOTSTRAP_SCRIPT} [QSA,L]
+</IfModule>
