@@ -1,6 +1,12 @@
 # MicronCMS
 MicronCMS- a drop in micro CMS for minimalist websites
 
+# Main Goal
+The goal was to build extendable, small and reliable CMS for microsites
+that follows best practices and is a drop in replacement for an old CMS.
+
+User build his own structure and CMS would take care of anything else...
+
 # Requirements
  - PHP >=5.5.2
  
@@ -23,12 +29,6 @@ MicronCMS- a drop in micro CMS for minimalist websites
  
 # Compilation
 In order to compile run `./bin/compile` (you may change `DEBUG` flag for debugging purposes)
-
-# Main Goal
-The goal was to build extendable, small and reliable CMS for microsites
-that follows best practices and is a drop in replacement for an old CMS.
-
-User build his own structure and CMS would take care of anything else...
 
 # TODO
  - Add more servers support
