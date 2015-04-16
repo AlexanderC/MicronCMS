@@ -16,7 +16,6 @@
   },
   "require": {
     "php": ">=5.5.2",
-    "ext-curl": "*",
     "ext-json": "*",
     "michelf/php-markdown": "1.5.0"
   },
