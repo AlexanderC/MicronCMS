@@ -24,15 +24,15 @@ User build his own structure and CMS would take care of anything else...
  
 How it works: 
  
-> By accessing `www.yoursite.com/` - CMS would look for an `_content/_index.*`
+> By accessing `www.yoursite.com/` - CMS would look for an `_content/_index.*` file
 
-> By accessing `www.yoursite.com/whatever` - CMS would look for an `_content/whatever.*`
+> By accessing `www.yoursite.com/whatever` - CMS would look for an `_content/whatever.*` file
 
-> By accessing `www.yoursite.com/nested/whatever` - CMS would look for an `_content/nested/whatever.*`
+> By accessing `www.yoursite.com/nested/whatever` - CMS would look for an `_content/nested/whatever.*` file
 
-> On `404` error - CMS would look for an `_content/_404.*`
+> On `404` error - CMS would look for an `_content/_404.*` file
 
-> On `500` error - CMS would look for an `_content/_500.*`
+> On `500` error - CMS would look for an `_content/_500.*` file
  
 # Development
  - Clone from github
