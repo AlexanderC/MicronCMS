@@ -1,0 +1,50 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Created by PhpStorm.
+ * User: AlexanderC <alexanderc@pycoding.biz>
+ * Date: 4/15/15
+ * Time: 17:23
+ */
+
+define('DEBUG', false);
+
+require __DIR__ . '/../vendor/autoload.php';
+
+echo "Initializing compiler...\n";
+
+$compiler = new \MicronCMS\Compiler(__DIR__ . '/../src');
+$compiler->setAppendFile(__DIR__ . '/../include/bootstrap.php');
+$compiler->setMinify(!DEBUG);
+
+$snapshotDirectory = __DIR__ . '/../snapshots/';
+$buildDirectory = __DIR__ . '/../build/';
+
+echo "Checking build directory...\n";
+
+if(!is_dir($buildDirectory) && !mkdir($buildDirectory, 0755, true)) {
+    throw new \MicronCMS\Exception\CompilationFailedException("Unable to create build directory");
+}
+
+echo "Initializing installer...\n";
+
+$installer = new \MicronCMS\Installer(
+    $buildDirectory,
+    '_content',
+    __DIR__ . '/../data/config/.htaccess',
+    __DIR__ . '/../data/static',
+    'index.php'
+);
+
+$snapshotFile = sprintf(
+    '%s%d_%s.zip',
+    $snapshotDirectory,
+    time(),
+    trim(shell_exec('git rev-parse --abbrev-ref HEAD'))
+);
+
+echo sprintf("Building into %s\n", $snapshotFile);
+
+$installer->installAndArchiveInto($compiler, !DEBUG, $snapshotFile);
+
+echo "Build succeed!\n";
