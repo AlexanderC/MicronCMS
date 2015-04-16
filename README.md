@@ -4,6 +4,12 @@ MicronCMS- a drop in micro CMS for minimalist websites
 # Requirements
  - PHP >=5.5.2
  
+# Supported files
+ - .html
+ - .txt
+ - .json
+ - .md (extended markdown using `michelf/php-markdown`)
+ 
 # Usage
  - Download latest snapshot from `https://github.com/AlexanderC/MicronCMS/raw/master/snapshots/1429171587_master.zip`
  - Unzip it in you web directory (ex. /var/www)
