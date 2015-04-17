@@ -34,6 +34,8 @@ How it works:
 
 > On `500` error - CMS would look for an `_content/_500.*` file
  
+For more examples check `_content` directory from latest snapshot 
+ 
 # Development
  - Clone from github
  - Run `composer install`
