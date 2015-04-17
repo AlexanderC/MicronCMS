@@ -1,3 +1,4 @@
 ${include _header.md}
-# Sample page
+## It works!
+#### For more details visit [GitHub project page](https://github.com/AlexanderC/MicronCMS "GitHub page")
 ${include _footer.md}

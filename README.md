@@ -17,7 +17,7 @@ User creates and manages itself the pages in most convenience way and the Micron
  - .md (extended markdown using `michelf/php-markdown`)
  
 # Usage
- - Download latest snapshot from `https://github.com/AlexanderC/MicronCMS/raw/master/snapshots/1429171587_master.zip`
+ - Download latest snapshot from `https://github.com/AlexanderC/MicronCMS/raw/master/snapshots/1429261329_master.zip`
  - Unzip it in you web directory (ex. /var/www)
  - Create you own or overwrite pages in `_content` directory
  - That's it!
