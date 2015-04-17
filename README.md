@@ -1,5 +1,5 @@
 # MicronCMS
-MicronCMS- a drop in micro CMS for minimalist websites
+MicronCMS- a drop in micro CMS for minimalist websites with zero configuration and no headache
 
 # Main Goal
 The goal was to build extendable, small and reliable CMS for microsites
