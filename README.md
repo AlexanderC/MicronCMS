@@ -5,12 +5,12 @@ MicronCMS- a drop in micro CMS for minimalist websites
 The goal was to build extendable, small and reliable CMS for microsites
 that follows best practices and is a drop in replacement for an old CMS.
 
-User build his own structure and CMS would take care of anything else...
+User creates and manages itself the pages in most convenience way and the MicronCMS would take care of anything else...
 
 # Requirements
  - PHP >=5.5.2
  
-# Supported files
+# Supported files format
  - .html
  - .txt
  - .json
@@ -22,7 +22,7 @@ User build his own structure and CMS would take care of anything else...
  - Create you own or overwrite pages in `_content` directory
  - That's it!
  
-###How it works: 
+### How it works: 
  
 > By accessing `www.yoursite.com/` - CMS would look for an `_content/_index.*` file
 
@@ -34,7 +34,7 @@ User build his own structure and CMS would take care of anything else...
 
 > On `500` error - CMS would look for an `_content/_500.*` file
  
-###Folder structure
+### Folder structure
  - `index.php` compiled CMS itself
  - `.htaccess` magic happens here
  - `_content`
@@ -44,14 +44,13 @@ User build his own structure and CMS would take care of anything else...
     - `_header.md` header sample included from `_index.md`
     - `_footer.md` Footer sample included from `_index.md`
  
-###For more examples check `_content` directory from latest snapshot 
- 
 # Development
+### Installation
  - Clone from github
  - Run `composer install`
  - Thats it!
  
-# Compilation
+### Compilation
 In order to compile run `./bin/compile` (you may change `DEBUG` flag for debugging purposes)
 
 # Changelog
