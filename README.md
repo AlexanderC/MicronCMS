@@ -48,7 +48,6 @@ User creates and manages itself the pages in most convenience way and the Micron
 ### Installation
  - Clone from github
  - Run `composer install`
- - Thats it!
  
 ### Compilation
 In order to compile run `./bin/compile` (you may change `DEBUG` flag for debugging purposes)
