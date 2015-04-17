@@ -22,7 +22,7 @@ User build his own structure and CMS would take care of anything else...
  - Create you own or overwrite pages in `_content` directory
  - That's it!
  
-How it works: 
+###How it works: 
  
 > By accessing `www.yoursite.com/` - CMS would look for an `_content/_index.*` file
 
@@ -34,7 +34,17 @@ How it works:
 
 > On `500` error - CMS would look for an `_content/_500.*` file
  
-For more examples check `_content` directory from latest snapshot 
+###Folder structure
+ - `index.php` compiled CMS itself
+ - `.htaccess` magic happens here
+ - `_content`
+    - `_404.md` default `404 Not Found` page   
+    - `_500.md` default `500 Internal Server Error` page
+    - `_index.md` sample homepage
+    - `_header.md` header sample included from `_index.md`
+    - `_footer.md` Footer sample included from `_index.md`
+ 
+###For more examples check `_content` directory from latest snapshot 
  
 # Development
  - Clone from github
