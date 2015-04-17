@@ -44,6 +44,10 @@ For more examples check `_content` directory from latest snapshot
 # Compilation
 In order to compile run `./bin/compile` (you may change `DEBUG` flag for debugging purposes)
 
+# Changelog
+###v1.0.0beta
+ - First release...
+
 # TODO
  - Add more servers support
  - Add tests
