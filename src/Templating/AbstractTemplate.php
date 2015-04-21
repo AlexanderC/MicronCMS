@@ -9,6 +9,7 @@
 namespace MicronCMS\Templating;
 
 use MicronCMS\AbstractCompilable;
+use MicronCMS\Templating\Cache\TemplateCache;
 use MicronCMS\Templating\Exception\CachingFailedException;
 use MicronCMS\Templating\Exception\MissingTemplateException;
 
@@ -43,21 +44,21 @@ abstract class AbstractTemplate extends AbstractCompilable
     }
 
     /**
-     * @return void
+     * @return string
      */
     public function cache()
     {
-        if (static::class !== NativeTemplate::class) {
-            $cacheFile = preg_replace(
-                '/\.[^\.]+$/ui',
-                sprintf('.%s', static::NATIVE_EXTENSION),
-                $this->filePath
-            );
+        $cache = new TemplateCache();
 
-            if (!file_put_contents($cacheFile, $this->compile(), LOCK_EX)) {
+        if (static::class !== NativeTemplate::class) {
+            if(!$cache->cache($this, $content)) {
                 throw new CachingFailedException("Unable to create cache file");
             }
+
+            return $content;
         }
+
+        return $this->compile();
     }
 
     /**

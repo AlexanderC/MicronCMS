@@ -136,11 +136,7 @@ class Application extends AbstractCompilable
             } else {
                 $template = AbstractTemplate::create($templateFile);
 
-                $compiledContent = $template->compile();
-
-                if ($this->cache) {
-                    $template->cache();
-                }
+                $compiledContent = $this->cache ? $template->cache() : $template->compile();
 
                 $response = new Response($compiledContent, Response::SUCCESS);
             }
