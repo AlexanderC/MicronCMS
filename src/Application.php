@@ -89,11 +89,9 @@ class Application extends AbstractCompilable
         if ($templateFile) {
             $template = AbstractTemplate::create($templateFile);
 
-            if ($this->cache) {
-                $template->cache();
-            }
+            $compiledContent = $this->cache ? $template->cache() : $template->compile();
 
-            return new Response($template->compile(), Response::ERROR);
+            return new Response($compiledContent, Response::ERROR);
         }
 
         return new Response('Internal server error', Response::ERROR);
@@ -109,11 +107,9 @@ class Application extends AbstractCompilable
         if ($templateFile) {
             $template = AbstractTemplate::create($templateFile);
 
-            if ($this->cache) {
-                $template->cache();
-            }
+            $compiledContent = $this->cache ? $template->cache() : $template->compile();
 
-            return new Response($template->compile(), Response::NOT_FOUND);
+            return new Response($compiledContent, Response::NOT_FOUND);
         }
 
         return new Response('Page not found', Response::NOT_FOUND);
