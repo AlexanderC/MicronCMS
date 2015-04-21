@@ -28,9 +28,6 @@ class NativeTemplate extends AbstractTemplate
             throw new MissingTemplateException("Unable to read template file");
         }
 
-        $preProcessor = new PreProcessor();
-        $preProcessor->process($content, $this->filePath);
-
         return $content;
     }
 }

@@ -8,14 +8,12 @@
 
 namespace MicronCMS\Templating;
 
-use MicronCMS\Templating\Exception\MissingTemplateException;
-
 
 /**
  * Class HtmlTemplate
  * @package MicronCMS\Templating
  */
-class HtmlTemplate extends NativeTemplate
+class HtmlTemplate extends PreProcessedTemplate
 {
 
 }

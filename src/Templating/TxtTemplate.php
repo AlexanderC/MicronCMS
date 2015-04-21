@@ -8,14 +8,12 @@
 
 namespace MicronCMS\Templating;
 
-use MicronCMS\Templating\Exception\MissingTemplateException;
-
 
 /**
  * Class HtmlTemplate
  * @package MicronCMS\Templating
  */
-class TxtTemplate extends NativeTemplate
+class TxtTemplate extends PreProcessedTemplate
 {
     /**
      * @return string
@@ -24,6 +22,12 @@ class TxtTemplate extends NativeTemplate
     {
         $text = parent::compile();
 
-        return nl2br(str_replace(' ', '&nbsp;', $text));
+        return nl2br(str_replace([
+            ' ',
+            "\t"
+        ], [
+            '&nbsp;',
+            '&nbsp;&nbsp;&nbsp;&nbsp;'
+        ], $text));
     }
 }

@@ -9,14 +9,13 @@
 namespace MicronCMS\Templating;
 
 use Michelf\MarkdownExtra as Markdown;
-use MicronCMS\Templating\Exception\MissingTemplateException;
 
 
 /**
  * Class MdTemplate
  * @package MicronCMS\Templating
  */
-class MdTemplate extends NativeTemplate
+class MdTemplate extends PreProcessedTemplate
 {
     /**
      * @return string
