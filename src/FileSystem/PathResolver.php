@@ -9,7 +9,6 @@
 namespace MicronCMS\FileSystem;
 
 use MicronCMS\AbstractCompilable;
-use MicronCMS\Exception\ApplicationException;
 use MicronCMS\FileSystem\Exception\MissingPathException;
 use MicronCMS\Templating\AbstractTemplate;
 
@@ -84,7 +83,7 @@ class PathResolver extends AbstractCompilable
             return new \SplFileInfo($nativeFile);
         }
 
-        $walker = new RecursiveWalker($this->baseDirectory, $regexp);
+        $walker = new Walker(dirname($baseFilePath), $regexp);
 
         return $walker->getIterator()->current() ?: null;
     }
