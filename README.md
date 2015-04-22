@@ -5,7 +5,7 @@ MicronCMS- a drop in micro CMS for minimalist websites with zero configuration a
 The goal was to build extendable, small and reliable CMS for microsites
 that follows best practices and is a drop in replacement for an old CMS.
 
-User creates and manages itself the pages in most convenience way and the MicronCMS would take care of anything else...
+User creates and manages itself the pages in most convenient way and the MicronCMS would take care of anything else...
 
 # Requirements
  - PHP >=5.5.2
