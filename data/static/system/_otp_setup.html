@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Setup Google compatible OTP client</title>
+
+    <style>
+        table {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        td {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <h4>Check status: ${otpCheck}</h4>
+
+                    <form method='POST' action="">
+                        <input type='text' name='${testParameterName}' placeholder="Type generated token..." autofocus/>
+                        <input type='submit'/>
+                    </form>
+                </td>
+                <td>
+                    <img src='http://chart.googleapis.com/chart?cht=qr&chl=${provisioningUrl}&chld=H|0&chs=200x200&choe=png' alt='Scan me'/>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

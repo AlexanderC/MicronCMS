@@ -31,11 +31,45 @@ abstract class AbstractTemplate implements CompilableInterface
     protected $filePath;
 
     /**
+     * @var array
+     */
+    protected $variables = [];
+
+    /**
      * @param string $filePath
      */
     public function __construct($filePath)
     {
         $this->filePath = $filePath;
+    }
+
+    /**
+     * @return array
+     */
+    public function getVariables()
+    {
+        return $this->variables;
+    }
+
+    /**
+     * @param string $name
+     * @param string $value
+     * @return $this
+     */
+    public function setVariable($name, $value)
+    {
+        $this->variables[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * @param array $variables
+     * @return $this
+     */
+    public function setVariables(array $variables)
+    {
+        $this->variables = $variables;
+        return $this;
     }
 
     /**
@@ -62,6 +96,17 @@ abstract class AbstractTemplate implements CompilableInterface
         }
 
         return $this->compile();
+    }
+
+    /**
+     * @param string $content
+     * @return string
+     */
+    public function warmUp($content)
+    {
+        $scope = new VariableScope($this->variables);
+
+        return $scope->inject($content);
     }
 
     /**

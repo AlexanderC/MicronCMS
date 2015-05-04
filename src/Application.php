@@ -10,6 +10,7 @@ namespace MicronCMS;
 
 use MicronCMS\Exception\ApplicationException;
 use MicronCMS\Exception\Exception;
+use MicronCMS\Exception\MissingTemplateException;
 use MicronCMS\FileSystem\PathResolver;
 use MicronCMS\Helper\CompilableDefaults;
 use MicronCMS\Helper\HookableTrait;
@@ -43,6 +44,11 @@ class Application implements ApplicationInterface, CompilableInterface
     protected $cache = false;
 
     /**
+     * @var array
+     */
+    protected $templateGlobals = [];
+
+    /**
      * @param string $contentDirectory
      */
     public function __construct($contentDirectory)
@@ -56,6 +62,21 @@ class Application implements ApplicationInterface, CompilableInterface
         $this->resolver = new PathResolver($this->contentDirectory);
 
         $this->initializeHooks();
+
+
+        $this->addDefaultTemplateGlobals();
+    }
+
+    /**
+     * @return $this
+     */
+    protected function addDefaultTemplateGlobals()
+    {
+        $this
+            ->setTemplateGlobal('_application', $this)
+            ->setTemplateGlobal('_request', null);
+
+        return $this;
     }
 
     /**
@@ -85,6 +106,38 @@ class Application implements ApplicationInterface, CompilableInterface
     }
 
     /**
+     * @param string $name
+     * @param mixed $value
+     * @return $this
+     */
+    public function setTemplateGlobal($name, $value)
+    {
+        $this->templateGlobals[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * @param string $templateRelativePath
+     * @param array $variables
+     * @return string
+     */
+    public function render($templateRelativePath, array $variables = [])
+    {
+        $templateFile = $this->resolver->resolve($templateRelativePath);
+
+        if ($templateFile) {
+            $template = AbstractTemplate::create($templateFile);
+            $template->setVariables(array_merge($this->templateGlobals, $variables));
+
+            return $template->warmUp(
+                $this->cache ? $template->cache() : $template->compile()
+            );
+        }
+
+        throw new MissingTemplateException(sprintf("Template %s not found", $templateRelativePath));
+    }
+
+    /**
      * @param string $message
      * @return Response
      */
@@ -94,15 +147,9 @@ class Application implements ApplicationInterface, CompilableInterface
             return new Response($message, Response::ACCESS_DENIED);
         }
 
-        $templateFile = $this->resolver->resolve('_403');
-
-        if ($templateFile) {
-            $template = AbstractTemplate::create($templateFile);
-
-            $compiledContent = $this->cache ? $template->cache() : $template->compile();
-
-            return new Response($compiledContent, Response::ACCESS_DENIED);
-        }
+        try {
+            return new Response($this->render('_403'), Response::ACCESS_DENIED);
+        } catch (Exception $e) {    }
 
         return new Response('Not authorized', Response::ACCESS_DENIED);
     }
@@ -112,15 +159,9 @@ class Application implements ApplicationInterface, CompilableInterface
      */
     public function createErrorResponse()
     {
-        $templateFile = $this->resolver->resolve('_500');
-
-        if ($templateFile) {
-            $template = AbstractTemplate::create($templateFile);
-
-            $compiledContent = $this->cache ? $template->cache() : $template->compile();
-
-            return new Response($compiledContent, Response::ERROR);
-        }
+        try {
+            return new Response($this->render('_500'), Response::ERROR);
+        } catch (Exception $e) {    }
 
         return new Response('Internal server error', Response::ERROR);
     }
@@ -130,15 +171,9 @@ class Application implements ApplicationInterface, CompilableInterface
      */
     public function createNotFoundResponse()
     {
-        $templateFile = $this->resolver->resolve('_404');
-
-        if ($templateFile) {
-            $template = AbstractTemplate::create($templateFile);
-
-            $compiledContent = $this->cache ? $template->cache() : $template->compile();
-
-            return new Response($compiledContent, Response::NOT_FOUND);
-        }
+        try {
+            return new Response($this->render('_404'), Response::NOT_FOUND);
+        } catch (Exception $e) {    }
 
         return new Response('Page not found', Response::NOT_FOUND);
     }
@@ -152,6 +187,8 @@ class Application implements ApplicationInterface, CompilableInterface
         $request = $request ?: Request::createFromGlobals();
         $path = $request->getPath();
 
+        $this->setTemplateGlobal('_request', $request);
+
         $earlyResponse = null;
 
         $this->triggerHooks(self::BEFORE, [$this, &$earlyResponse, $request]);
@@ -163,24 +200,16 @@ class Application implements ApplicationInterface, CompilableInterface
         }
 
         try {
-            $templateFile = $this->resolver->resolve($path);
-
-            if (null === $templateFile) {
-                $response = $this->createNotFoundResponse();
-            } else {
-                $template = AbstractTemplate::create($templateFile);
-
-                $compiledContent = $this->cache ? $template->cache() : $template->compile();
-
-                $response = new Response($compiledContent, Response::SUCCESS);
-
-                $this->triggerHooks(self::AFTER, [$this, &$response, $request]);
-            }
+            $response = new Response($this->render($path), Response::SUCCESS);
+        } catch(MissingTemplateException $e) {
+            $response = $this->createNotFoundResponse();
         } catch (Exception $e) {
             $response = $this->createErrorResponse();
 
             $this->triggerHooks(self::ERROR, [$this, &$response, $request, $e]);
         }
+
+        $this->triggerHooks(self::AFTER, [$this, &$response, $request]);
 
         return $response;
     }

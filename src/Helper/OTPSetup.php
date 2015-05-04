@@ -134,32 +134,20 @@ class OTPSetup implements CompilableInterface
                 return;
             }
 
-            $provisioningUrl = $this->policy->getOtp()->getProvisioningUri();
-
-            $googleChartUrl = sprintf(
-                "http://chart.googleapis.com/chart?cht=qr&chl=%s&chld=high&chs=300x300&choe=png",
-                rawurlencode($provisioningUrl)
-            );
-
-            $otpCheck = '';
+            $otpCheck = 'NOT SUBMITTED';
 
             if ($request->get($testParameterName)) {
-                $otpCheckStatus = PolicyInterface::ALLOW === $this->policy->apply($request);
-
-                $otpCheck = sprintf('<strong>Check status: %s</strong>', $otpCheckStatus ? 'OK' : 'FAIL');
+                $otpCheck = PolicyInterface::ALLOW === $this->policy->apply($request) ? 'OK' : 'FAIL';
             }
 
-            $response = new Response("
-                <h3>Try it!</h3>
-                <p>{$otpCheck}</p>
-                <form method='POST'>
-                    <input type='text' name='{$testParameterName}'>
-                    <input type='submit'>
-                </form>
-                <hr>
-                <h3>Scan with your GoogleOTP compatible client</h3>
-                <img src='{$googleChartUrl}' alt='Scan me'/>
-            ");
+            $response = new Response($application->render(
+                '/system/_otp_setup.html',
+                [
+                    'otpCheck' => $otpCheck,
+                    'testParameterName' => $testParameterName,
+                    'provisioningUrl' => rawurlencode($this->policy->getOtp()->getProvisioningUri())
+                ]
+            ));
 
             $hook->setStopped(true);
         }

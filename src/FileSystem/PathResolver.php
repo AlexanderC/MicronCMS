@@ -73,11 +73,9 @@ class PathResolver implements CompilableInterface
 
         $baseFilePath = sprintf('%s/%s', $this->baseDirectory, $path);
 
-        $regexp = sprintf(
-            '/^%s\.(%s)$/ui',
-            preg_quote($baseFilePath, '/'),
-            implode('|', $this->allowedExtensions)
-        );
+        if (preg_match('/\.[^\/\.]+$/ui', $baseFilePath) && is_file($baseFilePath)) {
+            return new \SplFileInfo($baseFilePath);
+        }
 
         $nativeFile = sprintf('%s.%s', $baseFilePath, AbstractTemplate::NATIVE_EXTENSION);
 
@@ -85,6 +83,12 @@ class PathResolver implements CompilableInterface
         if (is_file($nativeFile)) {
             return new \SplFileInfo($nativeFile);
         }
+
+        $regexp = sprintf(
+            '/^%s\.(%s)$/ui',
+            preg_quote($baseFilePath, '/'),
+            implode('|', $this->allowedExtensions)
+        );
 
         $walker = new Walker(dirname($baseFilePath), $regexp);
 
