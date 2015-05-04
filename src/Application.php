@@ -11,19 +11,20 @@ namespace MicronCMS;
 use MicronCMS\Exception\ApplicationException;
 use MicronCMS\Exception\Exception;
 use MicronCMS\FileSystem\PathResolver;
-use MicronCMS\FileSystem\RecursiveWalker;
+use MicronCMS\Helper\HookableTrait;
 use MicronCMS\HttpKernel\Request;
 use MicronCMS\HttpKernel\Response;
 use MicronCMS\Templating\AbstractTemplate;
-use MicronCMS\Templating\NativeTemplate;
 
 
 /**
  * Class Application
  * @package MicronCMS
  */
-class Application extends AbstractCompilable
+class Application extends AbstractCompilable implements ApplicationInterface
 {
+    use HookableTrait;
+
     /**
      * @var string
      */
@@ -51,6 +52,8 @@ class Application extends AbstractCompilable
         }
 
         $this->resolver = new PathResolver($this->contentDirectory);
+
+        $this->initializeHooks();
     }
 
     /**
@@ -124,6 +127,16 @@ class Application extends AbstractCompilable
         $request = $request ?: Request::createFromGlobals();
         $path = $request->getPath();
 
+        $earlyResponse = null;
+
+        $this->triggerHooks(self::BEFORE, [$this, &$earlyResponse, $request]);
+
+        if (is_object($earlyResponse) && $earlyResponse instanceof Response) {
+            $this->triggerHooks(self::AFTER, [$this, &$earlyResponse, $request]);
+
+            return $earlyResponse;
+        }
+
         try {
             $templateFile = $this->resolver->resolve($path);
 
@@ -135,9 +148,13 @@ class Application extends AbstractCompilable
                 $compiledContent = $this->cache ? $template->cache() : $template->compile();
 
                 $response = new Response($compiledContent, Response::SUCCESS);
+
+                $this->triggerHooks(self::AFTER, [$this, &$response, $request]);
             }
         } catch (Exception $e) {
             $response = $this->createErrorResponse();
+
+            $this->triggerHooks(self::ERROR, [$this, &$response, $request, $e]);
         }
 
         return $response;

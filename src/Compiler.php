@@ -180,7 +180,11 @@ class Compiler
                 throw new CompilationFailedException("Unable to read prepend file");
             }
 
-            $code = sprintf("namespace __auto_prepend\n{\n%s\n}\n%s", $this->removePhpTags($prependContent), $code);
+            $code = sprintf(
+                "namespace\n{\n%s\n}\n%s",
+                $this->addSpacingLevel($this->removePhpTags($prependContent), 1),
+                $code
+            );
         }
 
         if (isset($this->appendFile)) {
@@ -190,12 +194,30 @@ class Compiler
                 throw new CompilationFailedException("Unable to read append file");
             }
 
-            $code = sprintf("%s\nnamespace __auto_append\n{\n%s\n}\n", $code, $this->removePhpTags($appendContent));
+            $code = sprintf(
+                "%s\nnamespace\n{\n%s\n}\n",
+                $code,
+                $this->addSpacingLevel($this->removePhpTags($appendContent), 1)
+            );
         }
 
         $code = sprintf("<?php\n%s", $code);
 
         return $this->minify ? $this->minifySource($code) : $code;
+    }
+
+    /**
+     * @param string $code
+     * @param int $level
+     * @return mixed
+     */
+    protected function addSpacingLevel($code, $level)
+    {
+        $spaces = str_repeat("    ", (int)$level);
+
+        $code = $spaces . ltrim($code);
+
+        return str_replace("\n", sprintf("\n%s", $spaces), $code);
     }
 
     /**
@@ -273,6 +295,10 @@ class Compiler
                 $this->compileRecursive($reflectionInterface, $compiledPartsGrouped, $compilationStack);
             }
 
+            foreach ($reflectionClass->getTraits() as $reflectionTrait) {
+                $this->compileRecursive($reflectionTrait, $compiledPartsGrouped, $compilationStack);
+            }
+
             if (is_subclass_of($className, CompilableInterface::class)
                 && !$reflectionClass->isInterface()
             ) {
@@ -302,7 +328,6 @@ class Compiler
     protected function compileClass(\ReflectionClass $reflectionClass, & $namespace)
     {
         $classCode = '';
-        $className = $reflectionClass->getName();
         $classNamespace = $reflectionClass->getNamespaceName();
         $namespace = $classNamespace ?: $namespace;
 
@@ -321,7 +346,7 @@ class Compiler
         $usesRegexp = '/^\s*use\s+\\\?(?P<class>[^\s]+)(\s+as\s+(?P<alias>[^\s]+))?\s*;\s*$/ui';
 
         $startLineRegexp = sprintf(
-            '/^\s*(abstract\s*)?(class|interface)\s*%s\s*(extends\s*[^\s]+\s*)?(implements\s*[^\s]+\s*)?({.*)?$/ui',
+            '/^\s*(abstract\s*)?(trait|class|interface)\s*%s\s*(extends\s*[^\s]+\s*)?(implements\s*[^\s]+\s*)?({.*)?$/ui',
             preg_quote($reflectionClass->getShortName(), '/')
         );
 
@@ -348,6 +373,12 @@ class Compiler
         fclose($file);
 
         foreach ($uses as $alias => $realClass) {
+            $classCode = preg_replace(
+                sprintf('/([^[:alnum:]]+use\s+)%s(\s*(?:{[^}]*}\s*)?;)/mui', preg_quote($alias)),
+                sprintf('$1\%s$2', $realClass),
+                $classCode
+            );
+
             $classCode = preg_replace(
                 sprintf('/(\s+|\()(%s)(\s*(?:\(|::|\s+|\)))/mui', preg_quote($alias)),
                 sprintf('$1\%s$3', $realClass),

@@ -11,6 +11,8 @@ define("__CONTENT_DIR__", __DIR__ . '/_content');
 $application = new \MicronCMS\Application(__CONTENT_DIR__);
 $application->setCache(true);
 
+(new \MicronCMS\Management\UploadListener($application))->listen();
+
 $response = $application->dispatch();
 
 $response->send();

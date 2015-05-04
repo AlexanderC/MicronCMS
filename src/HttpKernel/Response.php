@@ -10,6 +10,7 @@ namespace MicronCMS\HttpKernel;
 
 use MicronCMS\AbstractCompilable;
 use MicronCMS\Exception\ApplicationException;
+use MicronCMS\HttpKernel\Exception\UnableToSendResponseException;
 
 
 /**
@@ -22,6 +23,8 @@ class Response extends AbstractCompilable
     const SUCCESS = 200;
     const NOT_FOUND = 404;
     const ERROR = 500;
+    const PERMANENT_REDIRECT = 301;
+    const TEMPORARY_REDIRECT = 302;
 
     /**
      * @var int
@@ -60,13 +63,29 @@ class Response extends AbstractCompilable
     }
 
     /**
+     * @param bool $permanent
+     */
+    public function redirect($permanent = false)
+    {
+        if (!filter_var($this->content, FILTER_VALIDATE_URL)) {
+            throw new UnableToSendResponseException("Content is not a valid url");
+        }
+
+        static::assureHeadersNotSent();
+
+        $redirectType = $permanent ? self::PERMANENT_REDIRECT : self::TEMPORARY_REDIRECT;
+
+        @ob_end_clean();
+        header(sprintf('Location: %s', $this->content), true, $redirectType);
+        @ob_end_flush();
+    }
+
+    /**
      * @retunr void
      */
     public function send()
     {
-        if (headers_sent()) {
-            throw new ApplicationException("Headers already sent");
-        }
+        static::assureHeadersNotSent();
 
         @ob_end_clean();
         header('Content-Type: text/html; charset=UTF-8');
@@ -75,5 +94,15 @@ class Response extends AbstractCompilable
         @ob_end_flush();
         echo $this->content;
         @ob_end_flush();
+    }
+
+    /**
+     * @throws UnableToSendResponseException
+     */
+    protected static function assureHeadersNotSent()
+    {
+        if (headers_sent()) {
+            throw new UnableToSendResponseException("Headers already sent");
+        }
     }
 }

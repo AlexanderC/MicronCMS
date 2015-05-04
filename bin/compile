@@ -7,7 +7,9 @@
  * Time: 17:23
  */
 
-define('DEBUG', false);
+if (!defined('DEBUG')) {
+    define('DEBUG', isset($argv[1]) && 'debug' === strtolower($argv[1]));
+}
 
 require __DIR__ . '/../vendor/autoload.php';
 

@@ -28,13 +28,28 @@ class Request extends AbstractCompilable
     protected $data;
 
     /**
+     * @var File[]
+     */
+    protected $files;
+
+    /**
      * @param string $path
      * @param array $data
+     * @param array $files
      */
-    public function __construct($path, array $data)
+    public function __construct($path, array $data, array $files)
     {
         $this->path = sprintf('/%s', trim($path, '/'));
         $this->data = $data;
+        $this->files = $files;
+    }
+
+    /**
+     * @return File[]
+     */
+    public function getFiles()
+    {
+        return $this->files;
     }
 
     /**
@@ -91,7 +106,8 @@ class Request extends AbstractCompilable
     {
         return new static(
             $_SERVER['REQUEST_URI'],
-            array_merge($_GET, $_POST)
+            array_merge($_GET, $_POST),
+            File::createFromGlobals()
         );
     }
 }
