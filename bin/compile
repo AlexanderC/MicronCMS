@@ -39,9 +39,8 @@ $installer = new \MicronCMS\Installer(
 );
 
 $snapshotFile = sprintf(
-    '%s%d_%s.zip',
+    '%s%s.zip',
     $snapshotDirectory,
-    time(),
     trim(shell_exec('git rev-parse --abbrev-ref HEAD'))
 );
 
