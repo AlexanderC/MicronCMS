@@ -8,8 +8,8 @@
 
 namespace MicronCMS\HttpKernel;
 
-use MicronCMS\AbstractCompilable;
-use MicronCMS\Exception\ApplicationException;
+use MicronCMS\CompilableInterface;
+use MicronCMS\Helper\CompilableDefaults;
 use MicronCMS\HttpKernel\Exception\UnableToSendResponseException;
 
 
@@ -17,14 +17,17 @@ use MicronCMS\HttpKernel\Exception\UnableToSendResponseException;
  * Class Response
  * @package MicronCMS\HttpKernel
  */
-class Response extends AbstractCompilable
+class Response implements CompilableInterface
 {
+    use CompilableDefaults;
+
     const NO_CONTENT = 204;
     const SUCCESS = 200;
     const NOT_FOUND = 404;
     const ERROR = 500;
     const PERMANENT_REDIRECT = 301;
     const TEMPORARY_REDIRECT = 302;
+    const ACCESS_DENIED = 403;
 
     /**
      * @var int

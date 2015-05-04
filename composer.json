@@ -18,7 +18,8 @@
     "php": ">=5.5.2",
     "ext-json": "*",
     "michelf/php-markdown": "1.5.0",
-    "doctrine/inflector": "1.0.*"
+    "doctrine/inflector": "1.0.*",
+    "spomky-labs/otphp": "~4.0.0"
   },
   "suggest": {
   }

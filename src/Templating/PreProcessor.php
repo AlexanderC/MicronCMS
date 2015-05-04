@@ -8,7 +8,8 @@
 
 namespace MicronCMS\Templating;
 
-use MicronCMS\AbstractCompilable;
+use MicronCMS\CompilableInterface;
+use MicronCMS\Helper\CompilableDefaults;
 use MicronCMS\Templating\Exception\PreProcessingFailedException;
 
 
@@ -16,8 +17,10 @@ use MicronCMS\Templating\Exception\PreProcessingFailedException;
  * Class PreProcessor
  * @package MicronCMS\Templating
  */
-class PreProcessor extends AbstractCompilable
+class PreProcessor implements CompilableInterface
 {
+    use CompilableDefaults;
+
     const T_INCLUDE = 0x001;
     const T_INCLUDE_REGEXP = '/(\${\s*include\s+(?P<statement>[^\s]+)\s*})/ui';
 

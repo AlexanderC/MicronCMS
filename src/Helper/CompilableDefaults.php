@@ -2,25 +2,25 @@
 /**
  * Created by PhpStorm.
  * User: AlexanderC <alexanderc@pycoding.biz>
- * Date: 4/15/15
- * Time: 17:54
+ * Date: 5/4/15
+ * Time: 14:53
  */
 
-namespace MicronCMS;
+namespace MicronCMS\Helper;
 
 
 /**
- * Class AbstractCompilable
- * @package MicronCMS
+ * Class CompilableDefaults
+ * @package MicronCMS\Helper
  */
-abstract class AbstractCompilable implements CompilableInterface
+trait CompilableDefaults 
 {
     /**
      * @param \ReflectionClass $static
      */
     public static function preCompile(\ReflectionClass $static)
     {
-        // TODO: Implement preCompile() method.
+
     }
 
     /**
@@ -28,7 +28,7 @@ abstract class AbstractCompilable implements CompilableInterface
      */
     public static function postCompile(& $generatedCode)
     {
-        // TODO: Implement postCompile() method.
+
     }
 
     /**

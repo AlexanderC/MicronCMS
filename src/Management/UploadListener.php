@@ -9,21 +9,28 @@
 namespace MicronCMS\Management;
 
 use Doctrine\Common\Inflector\Inflector;
-use MicronCMS\AbstractCompilable;
 use MicronCMS\Application;
+use MicronCMS\ApplicationInterface;
+use MicronCMS\CompilableInterface;
+use MicronCMS\Helper\CompilableDefaults;
 use MicronCMS\Helper\Hook;
 use MicronCMS\HttpKernel\Exception\UploadFailedException;
 use MicronCMS\HttpKernel\Request;
 use MicronCMS\HttpKernel\Response;
 use MicronCMS\Management\Exception\Exception;
+use MicronCMS\Security\Firewall;
+use MicronCMS\Security\Policy\PolicyInterface;
+use MicronCMS\Security\Rule;
 
 
 /**
  * Class UploadListener
  * @package MicronCMS\Management
  */
-class UploadListener extends AbstractCompilable
+class UploadListener implements CompilableInterface
 {
+    use CompilableDefaults;
+
     /**
      * @var Application
      */
@@ -35,11 +42,40 @@ class UploadListener extends AbstractCompilable
     protected $isListening = false;
 
     /**
+     * @var string
+     */
+    protected $pathToListen;
+
+    /**
      * @param Application $application
      */
     public function __construct(Application $application)
     {
         $this->application = $application;
+    }
+
+    /**
+     * @param PolicyInterface $policy
+     * @return $this
+     */
+    public function secure(PolicyInterface $policy)
+    {
+        $firewall = new Firewall();
+        $firewall->addRule(new Rule(empty($this->pathToListen) ? '.*' : $this->pathToListen));
+        $firewall->addPolicy($policy);
+
+        $this->application->addHook(
+            ApplicationInterface::BEFORE,
+            function(Hook $hook, Application $application, & $response, Request $request) use ($firewall) {
+                if ($this->isUploadRequest($request) && Firewall::DENIED === $firewall->decide($request)) {
+                    $response = $application->createNotAuthorizedResponse('Wrong or expired OTP token provided');
+                    $hook->setStopped(true);
+                }
+            },
+            PHP_INT_MAX
+        );
+
+        return $this;
     }
 
     /**
@@ -79,15 +115,30 @@ class UploadListener extends AbstractCompilable
     }
 
     /**
-     * @return void
+     * @param string $pathToListen
+     * @return $this
      */
-    public function listen()
+    public function listen($pathToListen = null)
     {
         if ($this->isListening) {
             throw new Exception("Upload listener is already listening");
         }
 
+        $this->pathToListen = $pathToListen;
+
         $this->application->addHook(Application::BEFORE, [$this, 'manage']);
+        return $this;
+    }
+
+    /**
+     * @param Request $request
+     * @return bool
+     */
+    protected function isUploadRequest(Request $request)
+    {
+        return empty($this->pathToListen)
+            ? !empty($request->getFiles())
+            : $request->matchPath($this->pathToListen) && !empty($request->getFiles());
     }
 
     /**
@@ -100,7 +151,7 @@ class UploadListener extends AbstractCompilable
     {
         $files = $request->getFiles();
 
-        if (!empty($files)) {
+        if ($this->isUploadRequest($request)) {
             $contentPath = $application->getContentDirectory();
 
             $filePath = $request->get('path');
@@ -118,6 +169,23 @@ class UploadListener extends AbstractCompilable
                 }
             }
         }
+    }
+
+    /**
+     * @param Request $request
+     * @param string $contentPath
+     * @param string $filePath
+     * @return string
+     */
+    protected static function generateFileUrl(Request $request, $contentPath, $filePath)
+    {
+        $path = mb_substr($filePath, mb_strlen($contentPath));
+
+        if (preg_match('/^(?<path>.+)(\.[a-z0-9]+)$/ui', $path, $matches)) {
+            $path = $matches['path'];
+        }
+
+        return sprintf('%s/%s', $request->getBaseUrl(), $path);
     }
 
     /**

@@ -8,15 +8,26 @@
 
 namespace MicronCMS\HttpKernel;
 
-use MicronCMS\AbstractCompilable;
+use MicronCMS\CompilableInterface;
+use MicronCMS\Helper\CompilableDefaults;
 
 
 /**
  * Class Request
  * @package MicronCMS\HttpKernel
  */
-class Request extends AbstractCompilable
+class Request implements CompilableInterface
 {
+    use CompilableDefaults;
+
+    const GET = 'GET';
+    const POST = 'POST';
+    const PUT = 'PUT';
+    const DELETE = 'DELETE';
+    const PATCH = 'PATCH';
+    const OPTIONS = 'OPTIONS';
+    const HEAD = 'HEAD';
+
     /**
      * @var string
      */
@@ -33,15 +44,146 @@ class Request extends AbstractCompilable
     protected $files;
 
     /**
-     * @param string $path
+     * @var string
+     */
+    protected $method;
+
+    /**
+     * @var string
+     */
+    protected $scheme;
+
+    /**
+     * @var string
+     */
+    protected $host;
+
+    /**
+     * @var int
+     */
+    protected $port;
+
+    /**
+     * @var string
+     */
+    protected $baseUrl;
+
+    /**
+     * @param string $url
+     * @param string $method
      * @param array $data
      * @param array $files
      */
-    public function __construct($path, array $data, array $files)
+    public function __construct($url, $method, array $data, array $files)
     {
-        $this->path = sprintf('/%s', trim($path, '/'));
+        $urlParts = static::parseUrl($url);
+
+        $this->method = strtoupper($method);
+        $this->baseUrl = $urlParts['base_url'];
+        $this->host = $urlParts['host'];
+        $this->scheme = $urlParts['scheme'];
+        $this->port = (int)$urlParts['port'];
+        $this->path = sprintf('/%s', trim($urlParts['path'], '/'));
         $this->data = $data;
         $this->files = $files;
+    }
+
+    /**
+     * @return Request
+     */
+    public static function createFromGlobals()
+    {
+        return new static(
+            static::getFullUrlFromGlobals(),
+            $_SERVER['REQUEST_METHOD'],
+            array_merge($_GET, $_POST),
+            File::createFromGlobals()
+        );
+    }
+
+    /**
+     * @param string $url
+     * @return array
+     */
+    protected static function parseUrl($url)
+    {
+        $parts = parse_url($url);
+
+        $hasExplicitPort = isset($parts['port']);
+
+        $scheme = isset($parts['scheme']) ? $parts['scheme'] : 'http';
+        $host = $parts['host'];
+        $port = isset($parts['port']) ? $parts['port'] : ('http' === $scheme ? 80 : 443);
+        $path = isset($parts['path']) ? $parts['path'] : '';
+
+        return [
+            'base_url' => $hasExplicitPort
+                ? sprintf('%s://%s:%d', $scheme, $host, $port)
+                : sprintf('%s://%s', $scheme, $host),
+            'scheme' => $scheme,
+            'host' => $host,
+            'port' => $port,
+            'path' => $path
+        ];
+    }
+
+    /**
+     * @param bool $useForwardedHost
+     * @return string
+     */
+    protected static function getFullUrlFromGlobals($useForwardedHost = false)
+    {
+        $ssl = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? true : false;
+        $sp = strtolower($_SERVER['SERVER_PROTOCOL']);
+        $protocol = substr($sp, 0, strpos($sp, '/')) . (($ssl) ? 's' : '');
+        $port = $_SERVER['SERVER_PORT'];
+        $port = ((!$ssl && $port == '80') || ($ssl && $port == '443')) ? '' : ':' . $port;
+        $host = ($useForwardedHost && isset($_SERVER['HTTP_X_FORWARDED_HOST']))
+            ? $_SERVER['HTTP_X_FORWARDED_HOST']
+            : (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null);
+        $host = isset($host) ? $host : $_SERVER['SERVER_NAME'] . $port;
+
+        return $protocol . '://' . $host . $_SERVER['REQUEST_URI'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    /**
+     * @return string
+     */
+    public function getScheme()
+    {
+        return $this->scheme;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHost()
+    {
+        return $this->host;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPort()
+    {
+        return $this->port;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBaseUrl()
+    {
+        return $this->baseUrl;
     }
 
     /**
@@ -82,15 +224,6 @@ class Request extends AbstractCompilable
 
     /**
      * @param string $name
-     * @return bool
-     */
-    public function has($name)
-    {
-        return isset($this->data[$name]);
-    }
-
-    /**
-     * @param string $name
      * @param mixed $default
      * @return mixed
      */
@@ -100,14 +233,20 @@ class Request extends AbstractCompilable
     }
 
     /**
-     * @return Request
+     * @param string $name
+     * @return bool
      */
-    public static function createFromGlobals()
+    public function has($name)
     {
-        return new static(
-            $_SERVER['REQUEST_URI'],
-            array_merge($_GET, $_POST),
-            File::createFromGlobals()
-        );
+        return isset($this->data[$name]);
+    }
+
+    /**
+     * @param string $pathExpression
+     * @return bool
+     */
+    public function matchPath($pathExpression)
+    {
+        return (bool)preg_match(sprintf('~^%s$~ui', $pathExpression), $this->getPath());
     }
 }

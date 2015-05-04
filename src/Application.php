@@ -11,6 +11,7 @@ namespace MicronCMS;
 use MicronCMS\Exception\ApplicationException;
 use MicronCMS\Exception\Exception;
 use MicronCMS\FileSystem\PathResolver;
+use MicronCMS\Helper\CompilableDefaults;
 use MicronCMS\Helper\HookableTrait;
 use MicronCMS\HttpKernel\Request;
 use MicronCMS\HttpKernel\Response;
@@ -21,8 +22,9 @@ use MicronCMS\Templating\AbstractTemplate;
  * Class Application
  * @package MicronCMS
  */
-class Application extends AbstractCompilable implements ApplicationInterface
+class Application implements ApplicationInterface, CompilableInterface
 {
+    use CompilableDefaults;
     use HookableTrait;
 
     /**
@@ -80,6 +82,29 @@ class Application extends AbstractCompilable implements ApplicationInterface
     {
         $this->cache = $cache;
         return $this;
+    }
+
+    /**
+     * @param string $message
+     * @return Response
+     */
+    public function createNotAuthorizedResponse($message = null)
+    {
+        if (!empty($message)) {
+            return new Response($message, Response::ACCESS_DENIED);
+        }
+
+        $templateFile = $this->resolver->resolve('_403');
+
+        if ($templateFile) {
+            $template = AbstractTemplate::create($templateFile);
+
+            $compiledContent = $this->cache ? $template->cache() : $template->compile();
+
+            return new Response($compiledContent, Response::ACCESS_DENIED);
+        }
+
+        return new Response('Not authorized', Response::ACCESS_DENIED);
     }
 
     /**

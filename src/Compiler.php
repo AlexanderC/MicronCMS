@@ -159,16 +159,12 @@ class Compiler
             }
         }
 
-        foreach ($compiledPartsGrouped as $namespace => $localCompiledParts) {
-            if (!empty($namespace)) {
-                $compiledParts[] = sprintf(
-                    "namespace %s\n{\n    %s\n}",
-                    $namespace,
-                    preg_replace("/\n/ui", "\n    ", implode("\n", $localCompiledParts))
-                );
-            } else {
-                $compiledParts[] = implode("\n", $localCompiledParts);
-            }
+        foreach ($compiledPartsGrouped as list($namespace, $compiledClass)) {
+            $compiledParts[] = sprintf(
+                "namespace %s\n{\n    %s\n}",
+                $namespace,
+                preg_replace("/\n/ui", "\n    ", $compiledClass)
+            );
         }
 
         $code = implode("\n", $compiledParts);
@@ -283,12 +279,12 @@ class Compiler
                 $className::postCompile($compiledClass);
             }
 
-            $workingClass = $reflectionClass;
+            $workingReflectionClass = $reflectionClass;
 
-            while ($parentClass = $workingClass->getParentClass()) {
-                $this->compileRecursive($parentClass, $compiledPartsGrouped, $compilationStack);
+            while ($parentReflectionClass = $workingReflectionClass->getParentClass()) {
+                $this->compileRecursive($parentReflectionClass, $compiledPartsGrouped, $compilationStack);
 
-                $workingClass = $parentClass;
+                $workingReflectionClass = $parentReflectionClass;
             }
 
             foreach ($reflectionClass->getInterfaces() as $reflectionInterface) {
@@ -302,7 +298,6 @@ class Compiler
             if (is_subclass_of($className, CompilableInterface::class)
                 && !$reflectionClass->isInterface()
             ) {
-
                 foreach ($className::compileDependencies() as $dependencyClass) {
                     $this->compileRecursive(
                         new \ReflectionClass($dependencyClass),
@@ -312,11 +307,7 @@ class Compiler
                 }
             }
 
-            if (!isset($compiledPartsGrouped[$namespace])) {
-                $compiledPartsGrouped[$namespace] = [];
-            }
-
-            $compiledPartsGrouped[$namespace][] = $compiledClass;
+            $compiledPartsGrouped[] = [$namespace, $compiledClass];
         }
     }
 
@@ -346,7 +337,7 @@ class Compiler
         $usesRegexp = '/^\s*use\s+\\\?(?P<class>[^\s]+)(\s+as\s+(?P<alias>[^\s]+))?\s*;\s*$/ui';
 
         $startLineRegexp = sprintf(
-            '/^\s*(abstract\s*)?(trait|class|interface)\s*%s\s*(extends\s*[^\s]+\s*)?(implements\s*[^\s]+\s*)?({.*)?$/ui',
+            '/^\s*(abstract\s*)?(trait|class|interface)\s*%s\s*(extends\s*[^\s]+\s*)?(implements\s*[^\s]+\s*(?:,\s*[^\s]+)*\s*)?({.*)?$/ui',
             preg_quote($reflectionClass->getShortName(), '/')
         );
 

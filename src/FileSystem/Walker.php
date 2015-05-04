@@ -8,8 +8,9 @@
 
 namespace MicronCMS\FileSystem;
 
-use MicronCMS\AbstractCompilable;
+use MicronCMS\CompilableInterface;
 use MicronCMS\FileSystem\Exception\Exception;
+use MicronCMS\Helper\CompilableDefaults;
 use Traversable;
 
 
@@ -17,8 +18,10 @@ use Traversable;
  * Class Walker
  * @package MicronCMS\FileSystem
  */
-class Walker extends AbstractCompilable implements \IteratorAggregate
+class Walker implements \IteratorAggregate, CompilableInterface
 {
+    use CompilableDefaults;
+
     /**
      * @var string
      */

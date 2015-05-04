@@ -8,8 +8,9 @@
 
 namespace MicronCMS\FileSystem;
 
-use MicronCMS\AbstractCompilable;
+use MicronCMS\CompilableInterface;
 use MicronCMS\FileSystem\Exception\MissingPathException;
+use MicronCMS\Helper\CompilableDefaults;
 use MicronCMS\Templating\AbstractTemplate;
 
 
@@ -17,8 +18,10 @@ use MicronCMS\Templating\AbstractTemplate;
  * Class PathResolver
  * @package MicronCMS\FileSystem
  */
-class PathResolver extends AbstractCompilable
+class PathResolver implements CompilableInterface
 {
+    use CompilableDefaults;
+
     const INDEX = '_index';
 
     /**

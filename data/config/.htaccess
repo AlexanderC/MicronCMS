@@ -1,4 +1,13 @@
 <IfModule mod_rewrite.c>
+    # In order t setup OTP client go to `/_/otp_setup?_secret_hash=%secret_hash%` page
+    # where `%secret_hash%` is MD5 hash string for given `micron_cms_auth_secret` value
+    # for example `03626fa118335460ad44024681a33f21` for `SOMERANDVALUE321`
+    # ---------------------------------------------------------------------------------
+    # When authenticating to an secured path use `_token` parameter
+    # to provide OTP token given by your OTP client
+    # ---------------------------------------------
+    SetEnv micron_cms_auth_secret SOMERANDVALUE321
+
     Options +FollowSymlinks
     RewriteEngine On
 

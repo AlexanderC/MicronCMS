@@ -8,7 +8,8 @@
 
 namespace MicronCMS\Templating;
 
-use MicronCMS\AbstractCompilable;
+use MicronCMS\CompilableInterface;
+use MicronCMS\Helper\CompilableDefaults;
 use MicronCMS\Templating\Cache\TemplateCache;
 use MicronCMS\Templating\Exception\CachingFailedException;
 use MicronCMS\Templating\Exception\MissingTemplateException;
@@ -18,8 +19,10 @@ use MicronCMS\Templating\Exception\MissingTemplateException;
  * Class AbstractTemplate
  * @package MicronCMS\Templating
  */
-abstract class AbstractTemplate extends AbstractCompilable
+abstract class AbstractTemplate implements CompilableInterface
 {
+    use CompilableDefaults;
+
     const NATIVE_EXTENSION = 'micron';
 
     /**

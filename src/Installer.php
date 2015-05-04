@@ -147,8 +147,17 @@ class Installer
             /** @var \SplFileObject $fileObject */
             foreach ($filesIterator as $fileObject) {
                 $relativePath = $this->getRelativePath((string)$fileObject, $this->defaultContentDirectory);
+                $newFilePath = sprintf('%s/%s', $contentDirectory, $relativePath);
+                $newFileDir = dirname($newFilePath);
 
-                if (!copy((string)$fileObject, sprintf('%s/%s', $contentDirectory, $relativePath))) {
+                if (!is_dir($newFileDir) && !mkdir($newFileDir, 0777, true)) {
+                    throw new InstallationException(sprintf(
+                        "Unable to create subdirectory '%s' in content directory",
+                        $newFileDir
+                    ));
+                }
+
+                if (!copy((string)$fileObject, $newFilePath)) {
                     throw new InstallationException(sprintf(
                         "Unable to copy '%s' into content directory",
                         $relativePath

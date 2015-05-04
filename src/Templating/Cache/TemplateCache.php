@@ -8,7 +8,8 @@
 
 namespace MicronCMS\Templating\Cache;
 
-use MicronCMS\AbstractCompilable;
+use MicronCMS\CompilableInterface;
+use MicronCMS\Helper\CompilableDefaults;
 use MicronCMS\Templating\AbstractTemplate;
 
 
@@ -16,8 +17,10 @@ use MicronCMS\Templating\AbstractTemplate;
  * Class TemplateCache
  * @package MicronCMS\Templating\Cache
  */
-class TemplateCache extends AbstractCompilable
+class TemplateCache implements CompilableInterface
 {
+    use CompilableDefaults;
+
     /**
      * @param AbstractTemplate $template
      * @param string $content

@@ -8,7 +8,8 @@
 
 namespace MicronCMS\HttpKernel;
 
-use MicronCMS\AbstractCompilable;
+use MicronCMS\CompilableInterface;
+use MicronCMS\Helper\CompilableDefaults;
 use MicronCMS\HttpKernel\Exception\UploadFailedException;
 
 
@@ -16,8 +17,10 @@ use MicronCMS\HttpKernel\Exception\UploadFailedException;
  * Class File
  * @package MicronCMS\HttpKernel
  */
-class File extends AbstractCompilable
+class File implements CompilableInterface
 {
+    use CompilableDefaults;
+
     /**
      * @var string
      */

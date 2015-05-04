@@ -8,15 +8,17 @@
 
 namespace MicronCMS\Helper;
 
-use MicronCMS\AbstractCompilable;
+use MicronCMS\CompilableInterface;
 
 
 /**
  * Class Hook
  * @package MicronCMS\Helper
  */
-class Hook extends AbstractCompilable
+class Hook implements CompilableInterface
 {
+    use CompilableDefaults;
+
     /**
      * @var callable
      */
