@@ -154,20 +154,27 @@ class UploadListener implements CompilableInterface
         if ($this->isUploadRequest($request)) {
             $contentPath = $application->getContentDirectory();
 
-            $filePath = $request->get('path');
-            $filePath = is_array($filePath) ? $filePath : array_fill(0, count($files), $filePath);
+            $filePath = $request->get('path', []);
+            $filePath = is_array($filePath) ? $filePath : [$filePath];
 
             foreach ($files as $i => $file) {
                 if (!isset($filePath[$i])) {
-                    $filePath[$i] = sprintf('%s/%s', $contentPath, $file->getName());
+                    $filePath[$i] = $file->getName();
                 }
 
-                $fileToPersist = static::cleanupFilePath($filePath[$i]);
+                $fileToPersist = static::cleanupFilePath(sprintf(
+                    '%s/%s',
+                    $contentPath,
+                    ltrim($filePath[$i], '/'))
+                );
 
                 if (!$file->move($fileToPersist, true)) {
                     throw new UploadFailedException("Unable to upload file due to some unknown reasons");
                 }
             }
+
+            $response = new Response(null, Response::NO_CONTENT);
+            $hook->setStopped(true);
         }
     }
 

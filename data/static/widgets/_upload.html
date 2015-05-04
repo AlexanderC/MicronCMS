@@ -1,0 +1,61 @@
+<script>
+    if(window.File && window.FileList && window.FileReader && window.FormData) {
+        window.addEventListener('load', function() {
+            var dropZone = document.body;
+
+            function cancel(e) {
+                if (e.preventDefault) {
+                    e.preventDefault();
+                }
+
+                if (e.stopPropagation) {
+                    e.stopPropagation();
+                }
+
+                return false;
+            }
+
+            function add(e)
+            {
+                try {
+                    var filesList = e.target.files || e.dataTransfer.files;
+
+                    var formData = new FormData();
+
+                    for (var i = 0; i < filesList.length; i++) {
+                        var file = filesList[i];
+                        var filePath = prompt('The path to persist uploaded file:', file.name);
+
+                        formData.append('path[' + i + ']', filePath);
+                        formData.append('files[' + i + ']', file);
+                    }
+
+                    formData.append('_token', prompt('Provider OTP token:'));
+
+                    var xhr = new XMLHttpRequest();
+
+                    xhr.open('POST', '/_/upload', true);
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState == 4) {
+                            if (xhr.status == 204 || xhr.status == 200) {
+                                alert("Files uploaded successfully");
+                            } else {
+                                alert("Error: " + xhr.responseText);
+                            }
+                        }
+                    };
+
+                    xhr.send(formData);
+                } catch(e) {
+                    console.log(e);
+                }
+
+                return cancel(e);
+            }
+
+            dropZone.addEventListener('dragover', cancel, false);
+            dropZone.addEventListener('dragenter', cancel, false);
+            dropZone.addEventListener('drop', add, false);
+        });
+    }
+</script>

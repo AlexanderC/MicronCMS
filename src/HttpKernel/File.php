@@ -159,7 +159,7 @@ class File implements CompilableInterface
             }
         }
 
-        return move_uploaded_file($this->temporaryPath, $path);
+        return @move_uploaded_file($this->temporaryPath, $path);
     }
 
     /**
@@ -170,13 +170,25 @@ class File implements CompilableInterface
         $collection = [];
 
         foreach ($_FILES as $file) {
-            $collection = new static(
-                empty($file['name']) ? 'Unknown' : $file['name'],
-                empty($file['type']) ? 'plain/text' : $file['type'],
-                $file['tmp_name'],
-                (int) $file['error'],
-                (int) $file['size']
-            );
+            if (is_array($file['error'])) {
+                for ($i = 0; $i < count($file['error']); $i++) {
+                    $collection[] = new static(
+                        empty($file['name'][$i]) ? 'Unknown' : $file['name'][$i],
+                        empty($file['type'][$i]) ? 'plain/text' : $file['type'][$i],
+                        $file['tmp_name'][$i],
+                        (int) $file['error'][$i],
+                        (int) $file['size'][$i]
+                    );
+                }
+            } else {
+                $collection[] = new static(
+                    empty($file['name']) ? 'Unknown' : $file['name'],
+                    empty($file['type']) ? 'plain/text' : $file['type'],
+                    $file['tmp_name'],
+                    (int) $file['error'],
+                    (int) $file['size']
+                );
+            }
         }
 
         return $collection;
